@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CustomerMangementAPI.Repositories;
+using CustomerMangementAPI.Services;
 
 namespace CustomerMangementAPI
 {
@@ -32,6 +34,10 @@ namespace CustomerMangementAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerMangementAPI", Version = "v1" });
             });
+
+            // Dependency Injection for ClientRepository and ClientService
+            services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddScoped<IClientService, ClientService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
