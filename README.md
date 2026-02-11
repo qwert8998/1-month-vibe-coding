@@ -10,3 +10,7 @@
 - Week3: Build the project using AI
 - Week4: Add tests and refactor the system
 - Week5: Polish and document everything
+
+## Rules
+- All implementations has been done by AI
+- All designs has been discussed with AI
