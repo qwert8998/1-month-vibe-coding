@@ -1,12 +1,13 @@
 
-import { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import CustomersMain from './components/customers/customers-main';
+import CustomerDetail from './components/customers/customer-detail';
+import UsersMain from './components/users/users-main';
+import OrdersMain from './components/orders/orders-main';
 import Menu from './components/shared/Menu';
-import Content from './components/shared/Content';
 import './App.css';
 
 function App() {
-  const [selected, setSelected] = useState('customers');
-
   return (
     <div style={{ display: 'flex', height: '100vh', background: '#f7f7f7' }}>
       <div
@@ -20,7 +21,7 @@ function App() {
           boxSizing: 'border-box',
         }}
       >
-        <Menu selected={selected} onSelect={setSelected} />
+        <Menu />
       </div>
       <div
         style={{
@@ -30,7 +31,13 @@ function App() {
           overflowY: 'auto',
         }}
       >
-        <Content selected={selected} />
+        <Routes>
+          <Route path="/customer" element={<CustomersMain />} />
+          <Route path="/customer/:id" element={<CustomerDetail />} />
+          <Route path="/users" element={<UsersMain />} />
+          <Route path="/orders" element={<OrdersMain />} />
+          <Route path="/" element={<Navigate to="/customer" replace />} />
+        </Routes>
       </div>
     </div>
   );

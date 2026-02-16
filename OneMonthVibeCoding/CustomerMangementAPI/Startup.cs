@@ -35,6 +35,15 @@ namespace CustomerMangementAPI
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerMangementAPI", Version = "v1" });
             });
 
+            // Add CORS policy
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowLocalhost5173",
+                    builder => builder.WithOrigins("http://localhost:5173")
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod());
+            });
+
             // Dependency Injection for ClientRepository and ClientService
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IClientService, ClientService>();
@@ -53,6 +62,9 @@ namespace CustomerMangementAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            // Enable CORS
+            app.UseCors("AllowLocalhost5173");
 
             app.UseAuthorization();
 

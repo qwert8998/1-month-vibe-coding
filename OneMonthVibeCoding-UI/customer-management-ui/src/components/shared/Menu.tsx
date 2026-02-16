@@ -1,29 +1,29 @@
 import React from 'react';
-
-interface MenuProps {
-  selected: string;
-  onSelect: (item: string) => void;
-}
+import { NavLink } from 'react-router-dom';
 
 const menuItems = [
-  { label: 'Customers', value: 'customers' },
-  { label: 'Users', value: 'users' },
-  { label: 'Orders', value: 'orders' },
+  { label: 'Customers', path: '/customer' },
+  { label: 'Users', path: '/users' },
+  { label: 'Orders', path: '/orders' },
 ];
 
-const Menu: React.FC<MenuProps> = ({ selected, onSelect }) => {
+const Menu: React.FC = () => {
   return (
     <nav className="menu">
       <h2>Menu</h2>
-      <ul>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
         {menuItems.map((item) => (
-          <li
-            key={item.value}
-            className={selected === item.value ? 'active' : ''}
-            onClick={() => onSelect(item.value)}
-            style={{ cursor: 'pointer', padding: '8px 0' }}
-          >
-            {item.label}
+          <li key={item.path} style={{ padding: '8px 0' }}>
+            <NavLink
+              to={item.path}
+              style={({ isActive }) => ({
+                color: isActive ? '#1976d2' : 'inherit',
+                textDecoration: 'none',
+                fontWeight: isActive ? 'bold' : 'normal',
+              })}
+            >
+              {item.label}
+            </NavLink>
           </li>
         ))}
       </ul>
