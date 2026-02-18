@@ -6,7 +6,7 @@ namespace CustomerMangementAPI.Repositories
 {
     public interface IClientRepository
     {
-        Task<List<string>> GetAllClientsAsync();
+        Task<List<Client>> GetAllClientsAsync();
         Task CreateClientAsync(Client client);
         Task<Client> GetClientByIdAsync(int clientId);
         Task<bool> UpdateClientAsync(int clientId, Client client);

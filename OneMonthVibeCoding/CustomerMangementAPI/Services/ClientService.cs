@@ -13,7 +13,7 @@ namespace CustomerMangementAPI.Services
             _clientRepository = clientRepository;
         }
 
-        public async Task<List<string>> GetAllClientsAsync()
+        public async Task<List<Models.Client>> GetAllClientsAsync()
         {
             return await _clientRepository.GetAllClientsAsync();
         }

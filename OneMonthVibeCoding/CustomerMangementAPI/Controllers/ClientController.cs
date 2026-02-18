@@ -19,7 +19,7 @@ namespace CustomerMangementAPI.Controllers
 
         // GET: /client/get-clients
         [HttpGet("get-clients")]
-        public async Task<ActionResult<IEnumerable<string>>> GetAllClients()
+        public async Task<ActionResult<IEnumerable<Client>>> GetAllClients()
         {
             var clients = await _clientService.GetAllClientsAsync();
             return Ok(clients);

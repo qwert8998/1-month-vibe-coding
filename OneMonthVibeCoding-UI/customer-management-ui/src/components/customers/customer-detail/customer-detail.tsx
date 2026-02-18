@@ -4,9 +4,9 @@ import { useCustomerDetail } from '../api';
 
 const CustomerDetail: React.FC = () => {
   // For now, always use id=1 as per requirements
-  // In future, use: const { id } = useParams<{ id: string }>();
-  const id = '1';
-  const { data: customer, isLoading, isError, error } = useCustomerDetail(id);
+  const { id } = useParams<{ id: string }>();
+  // const id = '1';
+  const { data: customer, isLoading, isError, error } = useCustomerDetail(id || '1');
 
   return (
     <div>

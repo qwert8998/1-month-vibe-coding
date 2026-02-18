@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCustomers } from './api';
+import type { Customer } from './api/customer-list';
 
 const CustomersMain: React.FC = () => {
   const { data: customers, isLoading, isError, error } = useCustomers();
@@ -18,11 +19,10 @@ const CustomersMain: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {customers.map((preferredName: string) => (
-              <tr key={preferredName}>
+            {customers.map((customer: Customer) => (
+              <tr key={customer.id}>
                 <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                  {/* For now, always link to id=1 as per requirements */}
-                  <Link to="/customer/1">{preferredName}</Link>
+                  <Link to={`/customer/${customer.id}`}>{customer.name}</Link>
                 </td>
               </tr>
             ))}
