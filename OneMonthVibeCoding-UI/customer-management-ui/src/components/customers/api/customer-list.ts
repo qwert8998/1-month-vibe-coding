@@ -1,12 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '../../../config/apiConfig';
-
-// Define the customer type based on expected API response
-export interface Customer {
-  id: string;
-  name: string;
-  // Add other fields as needed
-}
+import type { Customer } from '../domain/Customer';
 
 const getCustomers = async (): Promise<Customer[]> => {
   const response = await fetch(`${API_BASE_URL}client/get-clients`);

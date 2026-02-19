@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCustomers } from './api';
-import type { Customer } from './api/customer-list';
+import type { Customer } from './domain/Customer';
 
 const CustomersMain: React.FC = () => {
   const { data: customers, isLoading, isError, error } = useCustomers();
@@ -20,9 +20,9 @@ const CustomersMain: React.FC = () => {
           </thead>
           <tbody>
             {customers.map((customer: Customer) => (
-              <tr key={customer.id}>
+              <tr key={customer.clientId}>
                 <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                  <Link to={`/customer/${customer.id}`}>{customer.name}</Link>
+                  <Link to={`/customer/${customer.clientId}`}>{customer.clientFirstName}</Link>
                 </td>
               </tr>
             ))}
