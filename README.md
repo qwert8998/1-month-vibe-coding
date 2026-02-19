@@ -6,7 +6,11 @@
 
 ## Plan
 - Week1: Set up the environment
-- Week2: Practice the prompt and validate outcomes 
+- Week2: Practice Plan, Ask, Agent modes, utilize the prompt, and validate outcomes 
 - Week3: Build the project using AI
 - Week4: Add tests and refactor the system
 - Week5: Polish and document everything
+
+## Rules
+- All implementations has been done by AI
+- All designs has been discussed with AI
