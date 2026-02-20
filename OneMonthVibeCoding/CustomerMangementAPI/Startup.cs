@@ -46,6 +46,9 @@ namespace CustomerMangementAPI
             // Dependency Injection for ClientRepository and ClientService
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IClientService, ClientService>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddSingleton<IPasswordEncryptionService, PasswordEncryptionService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
