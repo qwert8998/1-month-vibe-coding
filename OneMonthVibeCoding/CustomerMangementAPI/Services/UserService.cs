@@ -32,6 +32,11 @@ namespace CustomerMangementAPI.Services
             return await _userRepository.GetUserByIdAsync(userId);
         }
 
+        public async Task<User> GetUserByUsernameAsync(string username)
+        {
+            return await _userRepository.GetUserByUsernameAsync(username);
+        }
+
         public async Task<bool> UpdateUserAsync(int userId, User user)
         {
             if (!string.IsNullOrEmpty(user.PasswordHash))

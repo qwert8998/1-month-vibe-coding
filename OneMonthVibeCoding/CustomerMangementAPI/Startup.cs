@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using OneMonthVibeCoding.CustomerMangementAPI.Middleware;
 
 
 namespace CustomerMangementAPI
@@ -32,6 +33,29 @@ namespace CustomerMangementAPI
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerMangementAPI", Version = "v1" });
+                // Add Bearer token auth to Swagger for Authorization header
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "Input your token as: {token}",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
             });
 
             // Add CORS policy
@@ -67,6 +91,9 @@ namespace CustomerMangementAPI
 
             // Enable CORS
             app.UseCors("AllowLocalhost5173");
+
+            // Use custom token authentication middleware
+            app.UseMiddleware<TokenAuthMiddleware>();
 
             app.UseAuthorization();
 

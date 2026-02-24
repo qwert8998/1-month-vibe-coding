@@ -19,6 +19,9 @@ namespace CustomerMangementAPI.Controllers
         [HttpPost("creation")]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
+            // Auth check handled by middleware, but explicit for clarity
+            if (!Request.Headers.ContainsKey("Authorization"))
+                return Unauthorized(new { status = "error", message = "Unauthorized" });
             await _userService.CreateUserAsync(user);
             return Ok();
         }
@@ -26,6 +29,8 @@ namespace CustomerMangementAPI.Controllers
         [HttpGet("all-users")]
         public async Task<IActionResult> ListAllUsers()
         {
+            if (!Request.Headers.ContainsKey("Authorization"))
+                return Unauthorized(new { status = "error", message = "Unauthorized" });
             var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }

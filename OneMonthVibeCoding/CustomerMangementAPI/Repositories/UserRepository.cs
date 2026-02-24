@@ -24,6 +24,11 @@ namespace CustomerMangementAPI.Repositories
             return await GetByIdAsync<User>(userId);
         }
 
+        public async Task<User> GetUserByUsernameAsync(string username)
+        {
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == username);
+        }
+
         public async Task<bool> UpdateUserAsync(int userId, User user)
         {
             return await UpdateAsync<User>(userId, user);

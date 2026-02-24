@@ -1,9 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '../../../config/apiConfig';
+import { getAuthHeaders } from '../../../config/authHeader';
 import type { Customer } from '../domain/Customer';
 
 const getCustomerById = async (id: string): Promise<Customer> => {
-  const response = await fetch(`${API_BASE_URL}client/${id}`);
+  const headers = getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}client/${id}`, {
+    headers,
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch customer detail');
   }
