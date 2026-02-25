@@ -1,17 +1,20 @@
+import UsersMain from './components/users/users-main';
 
 import { Routes, Route, Navigate } from 'react-router-dom';
-import CustomersMain from './components/customers/customers-main';
-import CustomerDetail from './components/customers/customer-detail';
-import UsersMain from './components/users/users-main';
-import OrdersMain from './components/orders/orders-main';
+
 import Menu from './components/shared/Menu';
 import LoginPage from './components/auth/LoginPage';
+import CustomersMain from './components/customers/customers-main';
+import CustomerDetail from './components/customers/customer-detail';
+import OrdersMain from './components/orders/orders-main';
+import UserDetail from './components/users/user-detail';
+import CreateUser from './components/users/create-user';
 import { logout } from './components/auth/api';
-import './App.css';
 
 function App() {
   const isLoggedIn = !!localStorage.getItem('authToken');
   const handleLogout = async () => {
+    // @ts-ignore: logout is imported from auth/api
     await logout(localStorage.getItem('authToken') || '');
     localStorage.removeItem('authToken');
     window.location.href = '/login';
@@ -56,6 +59,12 @@ function App() {
           } />
           <Route path="/users" element={
             isLoggedIn ? <UsersMain /> : <Navigate to="/login" replace />
+          } />
+          <Route path="/users/:userId" element={
+            isLoggedIn ? <UserDetail /> : <Navigate to="/login" replace />
+          } />
+          <Route path="/users/create" element={
+            isLoggedIn ? <CreateUser /> : <Navigate to="/login" replace />
           } />
           <Route path="/orders" element={
             isLoggedIn ? <OrdersMain /> : <Navigate to="/login" replace />
