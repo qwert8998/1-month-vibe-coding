@@ -6,3 +6,4 @@
 - Keep code simple, clean, readable, and maintainable.
 - Prefer separation of concerns and dependency injection.
 - Avoid business logic in controllers and repositories.
+- Avoid directly connect database in Controller level
