@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Menu from './components/shared/Menu';
 import LoginPage from './components/auth/LoginPage';
 import CustomersMain from './components/customers/customers-main';
+import CreateCustomerPage from './components/customers/customer-creation/create-customer';
 import CustomerDetail from './components/customers/customer-detail';
 import OrdersMain from './components/orders/orders-main';
 import UserDetail from './components/users/user-detail';
@@ -53,6 +54,9 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/customer" element={
             isLoggedIn ? <CustomersMain /> : <Navigate to="/login" replace />
+          } />
+          <Route path="/customer/create" element={
+            isLoggedIn ? <CreateCustomerPage /> : <Navigate to="/login" replace />
           } />
           <Route path="/customer/:id" element={
             isLoggedIn ? <CustomerDetail /> : <Navigate to="/login" replace />

@@ -72,6 +72,8 @@ namespace CustomerMangementAPI
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderService, OrderService>();
             services.AddSingleton<IPasswordEncryptionService, PasswordEncryptionService>();
         }
 
