@@ -8,6 +8,8 @@ import CustomersMain from './components/customers/customers-main';
 import CreateCustomerPage from './components/customers/customer-creation/create-customer';
 import CustomerDetail from './components/customers/customer-detail';
 import OrdersMain from './components/orders/orders-main';
+import OrderDetail from './components/orders/order-detail/order-detail';
+import CreateOrderPage from './components/orders/order-creation/create-order';
 import UserDetail from './components/users/user-detail';
 import CreateUser from './components/users/create-user';
 import { logout } from './components/auth/api';
@@ -15,7 +17,6 @@ import { logout } from './components/auth/api';
 function App() {
   const isLoggedIn = !!localStorage.getItem('authToken');
   const handleLogout = async () => {
-    // @ts-ignore: logout is imported from auth/api
     await logout(localStorage.getItem('authToken') || '');
     localStorage.removeItem('authToken');
     window.location.href = '/login';
@@ -72,6 +73,12 @@ function App() {
           } />
           <Route path="/orders" element={
             isLoggedIn ? <OrdersMain /> : <Navigate to="/login" replace />
+          } />
+          <Route path="/orders/create" element={
+            isLoggedIn ? <CreateOrderPage /> : <Navigate to="/login" replace />
+          } />
+          <Route path="/orders/:orderId" element={
+            isLoggedIn ? <OrderDetail /> : <Navigate to="/login" replace />
           } />
           <Route path="/" element={<Navigate to="/customer" replace />} />
         </Routes>
