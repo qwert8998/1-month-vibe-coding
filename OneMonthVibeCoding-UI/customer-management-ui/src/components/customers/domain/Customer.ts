@@ -8,4 +8,5 @@ export interface Customer {
   createDate: string; // ISO date string
   updateBy: string;
   updateDate: string; // ISO date string
+  isDeleted?: boolean;
 }

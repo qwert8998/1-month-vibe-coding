@@ -21,6 +21,8 @@ namespace CustomerMangementAPI.Controllers
         [HttpGet("get-clients")]
         public async Task<ActionResult<IEnumerable<Client>>> GetAllClients()
         {
+            if (!Request.Headers.ContainsKey("Authorization"))
+                return Unauthorized(new { status = "error", message = "Unauthorized" });
             var clients = await _clientService.GetAllClientsAsync();
             return Ok(clients);
         }
@@ -29,6 +31,8 @@ namespace CustomerMangementAPI.Controllers
         [HttpPost("create-client")]
         public async Task<ActionResult> CreateClient([FromBody] Client client)
         {
+            if (!Request.Headers.ContainsKey("Authorization"))
+                return Unauthorized(new { status = "error", message = "Unauthorized" });
             if (client == null)
             {
                 return BadRequest("Client data is required.");
