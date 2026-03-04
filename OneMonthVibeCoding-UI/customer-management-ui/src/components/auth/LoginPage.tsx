@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
       } else {
         throw new Error('Login failed');
       }
-    } catch (err) {
+    } catch {
       setError('Login failed, please try again');
       setPassword('');
     } finally {

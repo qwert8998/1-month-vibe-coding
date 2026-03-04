@@ -52,7 +52,7 @@ const CreateCustomerPage: React.FC = () => {
     try {
       await createCustomer(newCustomer);
       navigate('/customer');
-    } catch (err) {
+    } catch {
       setErrors({ submit: 'Failed to create customer' });
     }
   };
