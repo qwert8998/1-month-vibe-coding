@@ -1,4 +1,5 @@
 import UsersMain from './components/users/users-main';
+import type { ReactElement } from 'react';
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -13,6 +14,19 @@ import CreateOrderPage from './components/orders/order-creation/create-order';
 import UserDetail from './components/users/user-detail';
 import CreateUser from './components/users/create-user';
 import { logout } from './components/auth/api';
+
+type GuardProps = {
+  isLoggedIn: boolean;
+  children: ReactElement;
+};
+
+function RequireAuth({ isLoggedIn, children }: GuardProps) {
+  return isLoggedIn ? children : <Navigate to="/login" replace />;
+}
+
+function PublicOnly({ isLoggedIn, children }: GuardProps) {
+  return isLoggedIn ? <Navigate to="/customer" replace /> : children;
+}
 
 function App() {
   const isLoggedIn = !!localStorage.getItem('authToken');
@@ -52,35 +66,61 @@ function App() {
         }}
       >
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/login"
+            element={
+              <PublicOnly isLoggedIn={isLoggedIn}>
+                <LoginPage />
+              </PublicOnly>
+            }
+          />
           <Route path="/customer" element={
-            isLoggedIn ? <CustomersMain /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <CustomersMain />
+            </RequireAuth>
           } />
           <Route path="/customer/create" element={
-            isLoggedIn ? <CreateCustomerPage /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <CreateCustomerPage />
+            </RequireAuth>
           } />
           <Route path="/customer/:id" element={
-            isLoggedIn ? <CustomerDetail /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <CustomerDetail />
+            </RequireAuth>
           } />
           <Route path="/users" element={
-            isLoggedIn ? <UsersMain /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <UsersMain />
+            </RequireAuth>
           } />
           <Route path="/users/:userId" element={
-            isLoggedIn ? <UserDetail /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <UserDetail />
+            </RequireAuth>
           } />
           <Route path="/users/create" element={
-            isLoggedIn ? <CreateUser /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <CreateUser />
+            </RequireAuth>
           } />
           <Route path="/orders" element={
-            isLoggedIn ? <OrdersMain /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <OrdersMain />
+            </RequireAuth>
           } />
           <Route path="/orders/create" element={
-            isLoggedIn ? <CreateOrderPage /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <CreateOrderPage />
+            </RequireAuth>
           } />
           <Route path="/orders/:orderId" element={
-            isLoggedIn ? <OrderDetail /> : <Navigate to="/login" replace />
+            <RequireAuth isLoggedIn={isLoggedIn}>
+              <OrderDetail />
+            </RequireAuth>
           } />
-          <Route path="/" element={<Navigate to="/customer" replace />} />
+          <Route path="/" element={<Navigate to={isLoggedIn ? '/customer' : '/login'} replace />} />
+          <Route path="*" element={<Navigate to={isLoggedIn ? '/customer' : '/login'} replace />} />
         </Routes>
       </div>
     </div>
