@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { login } from './api';
 import '../../App.css';
+
+const AUTH_TOKEN_KEY = 'authToken';
+const AUTH_TOKEN_EXPIRES_AT_KEY = 'authTokenExpiresAt';
+const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
+
 interface LoginResponse {
   status: string;
   token: string;
@@ -19,7 +24,9 @@ const LoginPage: React.FC = () => {
     try {
       const data: LoginResponse = await login(username, password);
       if (data.status === 'success' && data.token) {
-        localStorage.setItem('authToken', data.token);
+        const expiresAt = Date.now() + ONE_DAY_IN_MS;
+        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+        localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, String(expiresAt));
         window.location.href = '/customer'; // Redirect to first feature
       } else {
         throw new Error('Login failed');

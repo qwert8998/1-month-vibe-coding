@@ -13,6 +13,8 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn(),
+  key: vi.fn(),
+  length: 0,
 };
 
 const getInputNextToLabel = (labelText: string) => {
@@ -62,6 +64,10 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'token-123');
+    });
+
+    await waitFor(() => {
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('authTokenExpiresAt', expect.any(String));
     });
   });
 

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOrderDetailById } from '../api/order-detail-by-id';
 import { refundOrder } from '../api/refund-order';
+import { parseStrictPositiveInteger } from '../../shared/sql-input-validation';
 
 const OrderDetail: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -14,6 +15,13 @@ const OrderDetail: React.FC = () => {
   const [inputError, setInputError] = useState<string>('');
   const [submitError, setSubmitError] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const parsedOrderId = (() => {
+    try {
+      return parseStrictPositiveInteger(orderId ?? '', 'Order ID');
+    } catch {
+      return null;
+    }
+  })();
 
   const handleOpenModal = () => {
     setRefundCost('');
@@ -27,6 +35,11 @@ const OrderDetail: React.FC = () => {
   };
 
   const handleSubmitRefund = async () => {
+    if (!parsedOrderId) {
+      setInputError('Invalid order id.');
+      return;
+    }
+
     const cost = Number(refundCost);
     if (!refundCost || isNaN(cost) || cost <= 0) {
       setInputError('Please enter a number greater than 0.');
@@ -38,7 +51,7 @@ const OrderDetail: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await refundOrder(Number(orderId), { refundCost: cost, updateBy: 'system' });
+      await refundOrder(parsedOrderId, { refundCost: cost, updateBy: 'system' });
       setModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['order', orderId] });
     } catch (err: unknown) {

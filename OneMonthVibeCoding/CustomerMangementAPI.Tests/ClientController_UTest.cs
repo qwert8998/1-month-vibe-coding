@@ -92,6 +92,20 @@ namespace CustomerMangementAPI.Tests
         }
 
         [Fact]
+        public async Task CreateClient_WhenClientFirstNameContainsSqlInjectionPattern_ReturnsBadRequest_AndDoesNotCallService()
+        {
+            var clientServiceMock = new Mock<IClientService>();
+            var controller = CreateController(clientServiceMock, withAuthorizationHeader: true);
+            var client = new Client { ClientId = 5, ClientFirstName = "Amy' UNION SELECT *" };
+
+            var result = await controller.CreateClient(client);
+
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Invalid input detected in ClientFirstName.", badRequest.Value);
+            clientServiceMock.Verify(service => service.CreateClientAsync(It.IsAny<Client>()), Times.Never);
+        }
+
+        [Fact]
         public async Task GetClientById_WhenClientDoesNotExist_ReturnsNotFound()
         {
             var clientServiceMock = new Mock<IClientService>();

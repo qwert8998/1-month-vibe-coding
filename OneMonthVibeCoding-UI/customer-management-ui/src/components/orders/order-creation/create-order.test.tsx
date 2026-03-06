@@ -184,4 +184,45 @@ describe('CreateOrderPage', () => {
     expect(await screen.findByText('create order failed')).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
+
+  it('blocks malformed client selection values', async () => {
+    vi.mocked(useCustomers).mockReturnValue({
+      data: [
+        {
+          clientId: 1,
+          clientFirstName: 'Jane',
+          clientLastName: 'Doe',
+          prefferName: 'JD',
+          dateofBirth: '1990-01-01',
+          createBy: 'system',
+          createDate: '2024-01-01T00:00:00.000Z',
+          updateBy: 'system',
+          updateDate: '2024-01-01T00:00:00.000Z',
+          isDeleted: false,
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as ReturnType<typeof useCustomers>);
+
+    render(
+      <MemoryRouter>
+        <CreateOrderPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.change(getFieldByLabel<HTMLSelectElement>('Client *', 'select'), {
+      target: { value: "1 OR 1=1" },
+    });
+    await userEvent.type(getFieldByLabel<HTMLInputElement>('Total Cost *', 'input'), '100');
+    fireEvent.change(getFieldByLabel<HTMLInputElement>('Delivery Date *', 'input'), {
+      target: { value: '2026-03-08T10:30' },
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    expect(screen.getByText('Please select a client.')).toBeInTheDocument();
+    expect(createOrder).not.toHaveBeenCalled();
+  });
 });

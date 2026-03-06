@@ -42,6 +42,20 @@ namespace CustomerMangementAPI.Tests
         }
 
         [Fact]
+        public async Task CreateUser_WhenUserNameContainsSqlInjectionPattern_ReturnsBadRequest_AndDoesNotCallService()
+        {
+            var userServiceMock = new Mock<IUserService>();
+            var controller = CreateController(userServiceMock, withAuthorizationHeader: true);
+            var user = new User { UserId = 3, UserName = "john; DROP TABLE Users" };
+
+            var result = await controller.CreateUser(user);
+
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Invalid input detected in UserName.", badRequest.Value);
+            userServiceMock.Verify(service => service.CreateUserAsync(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
         public async Task ListAllUsers_WhenAuthorizationHeaderMissing_ReturnsUnauthorized_AndDoesNotCallService()
         {
             var userServiceMock = new Mock<IUserService>();

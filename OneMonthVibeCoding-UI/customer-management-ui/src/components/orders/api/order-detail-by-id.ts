@@ -2,9 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '../../../config/apiConfig';
 import { getAuthHeaders } from '../../../config/authHeader';
 import type { Order } from '../domain/Order';
+import { parseStrictPositiveInteger } from '../../shared/sql-input-validation';
 
 const getOrderById = async (id: string): Promise<Order> => {
-  const response = await fetch(`${API_BASE_URL}api/Order/${id}`, {
+  const orderId = parseStrictPositiveInteger(id, 'Order ID');
+  const response = await fetch(`${API_BASE_URL}api/Order/${orderId}`, {
     headers: getAuthHeaders(),
   });
 

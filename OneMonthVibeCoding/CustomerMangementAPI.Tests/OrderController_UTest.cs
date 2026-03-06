@@ -200,5 +200,18 @@ namespace CustomerMangementAPI.Tests
             Assert.IsType<OkResult>(result);
             orderServiceMock.Verify(service => service.RefundOrderAsync(orderId, refundCost, updateBy), Times.Once);
         }
+
+        [Fact]
+        public async Task RefundOrder_WhenUpdateByContainsSqlInjectionPattern_ReturnsBadRequest_AndDoesNotCallService()
+        {
+            var orderServiceMock = new Mock<IOrderService>();
+            var controller = new OrderController(orderServiceMock.Object);
+
+            var result = await controller.RefundOrder(14, 40m, "admin; DROP TABLE Orders");
+
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("updateBy contains invalid input.", badRequest.Value);
+            orderServiceMock.Verify(service => service.RefundOrderAsync(It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+        }
     }
 }

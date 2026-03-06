@@ -106,4 +106,21 @@ describe('CreateCustomerPage', () => {
     expect(await screen.findByText('Failed to create customer')).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
+
+  it('blocks SQL injection-like text in customer name fields', async () => {
+    render(
+      <MemoryRouter>
+        <CreateCustomerPage />
+      </MemoryRouter>,
+    );
+
+    await userEvent.type(getInputNextToLabel('First Name *'), "Jane'; DROP TABLE users;--");
+    await userEvent.type(getInputNextToLabel('Last Name *'), 'Doe');
+    await userEvent.type(getInputNextToLabel('Date of Birth *'), '1990-01-01');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    expect(screen.getByText('First name: Input contains potentially unsafe SQL patterns.')).toBeInTheDocument();
+    expect(createCustomer).not.toHaveBeenCalled();
+  });
 });

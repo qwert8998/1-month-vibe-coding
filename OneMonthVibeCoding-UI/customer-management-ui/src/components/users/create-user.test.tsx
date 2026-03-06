@@ -111,4 +111,15 @@ describe('CreateUser', () => {
       expect(submitButton).toBeDisabled();
     });
   });
+
+  it('blocks SQL injection-like text in username', async () => {
+    renderCreateUser();
+
+    await userEvent.type(getInputNextToLabel('UserName:'), "admin'; DROP TABLE users;--");
+    await userEvent.type(getInputNextToLabel('Date of Birth:'), '2000-01-01');
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    expect(screen.getByText('User name: Input contains potentially unsafe SQL patterns.')).toBeInTheDocument();
+    expect(createUser).not.toHaveBeenCalled();
+  });
 });

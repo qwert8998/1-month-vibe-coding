@@ -3,13 +3,25 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchUserById } from './api/user-detail-by-id';
 import type { User } from './domain/User';
+import { parseStrictPositiveInteger } from '../shared/sql-input-validation';
 
 const UserDetail: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
+  const parsedUserId = (() => {
+    try {
+      return parseStrictPositiveInteger(userId ?? '', 'User ID');
+    } catch {
+      return null;
+    }
+  })();
+
   const { data: user, isLoading, isError, error } = useQuery<User, Error>({
-    queryKey: ['user', userId],
-    queryFn: () => fetchUserById(Number(userId)),
+    queryKey: ['user', parsedUserId],
+    queryFn: () => fetchUserById(parsedUserId as number),
+    enabled: parsedUserId !== null,
   });
+
+  if (parsedUserId === null) return <div>Error: Invalid user id.</div>;
 
   if (isLoading) return <div>Loading user detail...</div>;
   if (isError) return <div>Error: {error?.message}</div>;

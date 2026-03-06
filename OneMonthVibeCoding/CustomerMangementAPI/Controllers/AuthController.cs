@@ -1,5 +1,6 @@
 using CustomerMangementAPI.Models;
 using CustomerMangementAPI.Services;
+using CustomerMangementAPI.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OneMonthVibeCoding.CustomerMangementAPI.Models;
@@ -23,6 +24,21 @@ namespace OneMonthVibeCoding.CustomerMangementAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest(new { status = "error", message = "Login request is required" });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new { status = "error", message = "Username and password are required" });
+            }
+
+            if (!InputValidationHelper.IsSafeString(request.Username))
+            {
+                return BadRequest(new { status = "error", message = "Invalid username input" });
+            }
+
             var user = await _userService.GetUserByUsernameAsync(request.Username);
             if (user == null)
             {
@@ -42,6 +58,11 @@ namespace OneMonthVibeCoding.CustomerMangementAPI.Controllers
         [HttpPost("logout")]
         public IActionResult Logout([FromHeader(Name = "Authorization")] string token)
         {
+            if (string.IsNullOrWhiteSpace(token) || !InputValidationHelper.IsSafeString(token))
+            {
+                return Unauthorized(new { status = "error", message = "Invalid token" });
+            }
+
             if (!Services.TokenService.ValidateToken(token))
             {
                 return Unauthorized(new { status = "error", message = "Invalid token" });

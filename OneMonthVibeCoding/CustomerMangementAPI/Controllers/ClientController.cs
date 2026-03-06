@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CustomerMangementAPI.Services;
 using CustomerMangementAPI.Models;
+using CustomerMangementAPI.Validation;
 
 namespace CustomerMangementAPI.Controllers
 {
@@ -33,10 +34,17 @@ namespace CustomerMangementAPI.Controllers
         {
             if (!Request.Headers.ContainsKey("Authorization"))
                 return Unauthorized(new { status = "error", message = "Unauthorized" });
+
             if (client == null)
             {
                 return BadRequest("Client data is required.");
             }
+
+            if (!InputValidationHelper.TryValidateModelStringProperties(client, out var invalidProperty))
+            {
+                return BadRequest($"Invalid input detected in {invalidProperty}.");
+            }
+
             await _clientService.CreateClientAsync(client);
             return Ok();
         }
@@ -45,6 +53,11 @@ namespace CustomerMangementAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Client>> GetClientById(int id)
         {
+            if (!InputValidationHelper.IsPositiveId(id))
+            {
+                return BadRequest("id must be greater than 0.");
+            }
+
             var client = await _clientService.GetClientByIdAsync(id);
             if (client == null)
             {
@@ -57,10 +70,21 @@ namespace CustomerMangementAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<bool>> UpdateClient(int id, [FromBody] Client client)
         {
+            if (!InputValidationHelper.IsPositiveId(id))
+            {
+                return BadRequest("id must be greater than 0.");
+            }
+
             if (client == null)
             {
                 return BadRequest("Client data is required.");
             }
+
+            if (!InputValidationHelper.TryValidateModelStringProperties(client, out var invalidProperty))
+            {
+                return BadRequest($"Invalid input detected in {invalidProperty}.");
+            }
+
             var result = await _clientService.UpdateClientAsync(id, client);
             return Ok(result);
         }
@@ -69,6 +93,11 @@ namespace CustomerMangementAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<bool>> SoftDeleteClient(int id)
         {
+            if (!InputValidationHelper.IsPositiveId(id))
+            {
+                return BadRequest("id must be greater than 0.");
+            }
+
             var result = await _clientService.SoftDeleteClientAsync(id);
             return Ok(result);
         }

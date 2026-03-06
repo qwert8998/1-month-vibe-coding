@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomers } from '../../customers/api/customer-list';
 import { createOrder } from '../api/create-order';
 import type { Customer } from '../../customers/domain/Customer';
+import { parseStrictPositiveInteger } from '../../shared/sql-input-validation';
 
 const getDefaultDeliveryDate = () => {
   const d = new Date();
@@ -28,6 +29,13 @@ const CreateOrderPage: React.FC = () => {
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
     if (!clientId) newErrors.clientId = 'Please select a client.';
+    if (clientId) {
+      try {
+        parseStrictPositiveInteger(clientId, 'Client ID');
+      } catch {
+        newErrors.clientId = 'Invalid client id.';
+      }
+    }
     const cost = Number(totalCost);
     if (!totalCost || isNaN(cost) || cost <= 0) newErrors.totalCost = 'Total cost must be greater than 0.';
     if (!deliveryDate) newErrors.deliveryDate = 'Delivery date is required.';
@@ -45,8 +53,9 @@ const CreateOrderPage: React.FC = () => {
     setSubmitError('');
     setIsSubmitting(true);
     try {
+      const parsedClientId = parseStrictPositiveInteger(clientId, 'Client ID');
       await createOrder({
-        clientId: Number(clientId),
+        clientId: parsedClientId,
         totalCost: Number(totalCost),
         createBy: 'system',
         createDate: new Date().toISOString(),
