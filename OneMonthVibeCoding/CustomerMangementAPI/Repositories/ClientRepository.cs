@@ -29,33 +29,23 @@ namespace CustomerMangementAPI.Repositories
 
         public async Task<bool> UpdateClientAsync(int clientId, Client client)
         {
-            var query = _dbContext.Set<Client>().AsQueryable();
-            var existingClient = await query.FirstOrDefaultAsync(c => EF.Property<object>(c, "ClientId").Equals(clientId));
-            if (existingClient == null)
-                return false;
-
-            // Custom mapping for Client entity
-            existingClient.ClientFirstName = client.ClientFirstName;
-            existingClient.ClientLastName = client.ClientLastName;
-            existingClient.PrefferName = client.PrefferName;
-            existingClient.DateofBirth = client.DateofBirth;
-            existingClient.UpdateBy = client.UpdateBy;
-            existingClient.UpdateDate = client.UpdateDate;
-
-            await _dbContext.SaveChangesAsync();
-            return true;
+            return await ExecuteForEntityByIdAsync<Client>(clientId, existingClient =>
+            {
+                existingClient.ClientFirstName = client.ClientFirstName;
+                existingClient.ClientLastName = client.ClientLastName;
+                existingClient.PrefferName = client.PrefferName;
+                existingClient.DateofBirth = client.DateofBirth;
+                existingClient.UpdateBy = client.UpdateBy;
+                existingClient.UpdateDate = client.UpdateDate;
+            });
         }
 
         public async Task<bool> SoftDeleteClientAsync(int clientId)
         {
-            // SoftDeleteAsync is still entity-specific, but now filterable
-            var query = _dbContext.Set<Client>().AsQueryable();
-            var client = await query.FirstOrDefaultAsync(c => EF.Property<object>(c, "ClientId").Equals(clientId));
-            if (client == null)
-                return false;
-            client.IsDeleted = true;
-            await _dbContext.SaveChangesAsync();
-            return true;
+            return await ExecuteForEntityByIdAsync<Client>(clientId, client =>
+            {
+                client.IsDeleted = true;
+            });
         }
     }
 }

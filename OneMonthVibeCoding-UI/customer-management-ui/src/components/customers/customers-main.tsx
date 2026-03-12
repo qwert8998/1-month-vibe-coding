@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { deleteCustomer, useCustomers } from './api';
 import type { Customer } from './domain/Customer';
+import { routeBuilders, ROUTES } from '../../config/routes';
 
 const CustomersMain: React.FC = () => {
   const { data: customers, isLoading, isError, error, refetch } = useCustomers();
@@ -46,7 +47,7 @@ const CustomersMain: React.FC = () => {
             {customers.map((customer: Customer) => (
               <tr key={customer.clientId}>
                 <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                  <Link to={`/customer/${customer.clientId}`} style={{ color: customer.isDeleted ? 'red' : undefined }}>
+                  <Link to={routeBuilders.customerDetail(customer.clientId)} style={{ color: customer.isDeleted ? 'red' : undefined }}>
                     {customer.clientFirstName}
                   </Link>
                 </td>
@@ -74,7 +75,7 @@ const CustomersMain: React.FC = () => {
       )}
       {deleteError && <div style={{ color: 'red', marginTop: '8px' }}>{deleteError}</div>}
         <div style={{ marginTop: '32px', textAlign: 'right' }}>
-          <Link to="/customer/create">
+          <Link to={ROUTES.CUSTOMER_CREATE}>
             <button style={{ padding: '10px 24px', fontSize: '16px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
               Create User
             </button>

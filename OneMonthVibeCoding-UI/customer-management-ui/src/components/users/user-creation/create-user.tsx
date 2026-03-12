@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createUser } from './api/create-user';
-import type { User } from './domain/User';
 import { useNavigate } from 'react-router-dom';
+import { createUser } from '../api/create-user';
+import type { User } from '../domain/User';
+import { validateSafeTextInput } from '../../shared/sql-input-validation';
+import { ROUTES } from '../../../config/routes';
 
 const CreateUser: React.FC = () => {
   const queryClient = useQueryClient();
@@ -13,17 +15,32 @@ const CreateUser: React.FC = () => {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [email, setEmail] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   const mutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      navigate('/users');
+      navigate(ROUTES.USER_LIST);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const fieldError =
+      validateSafeTextInput(userName, 'User name') ||
+      validateSafeTextInput(lastName, 'Last name') ||
+      validateSafeTextInput(passwordHash, 'Password hash') ||
+      validateSafeTextInput(email, 'Email');
+
+    if (fieldError) {
+      setValidationError(fieldError);
+      return;
+    }
+
+    setValidationError('');
+
     mutation.mutate({
       userName,
       lastName,
@@ -65,7 +82,8 @@ const CreateUser: React.FC = () => {
           <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
         </div>
         <button type="submit" disabled={mutation.isPending}>Create</button>
-        {mutation.isError && <div style={{color:'red'}}>Error: {(mutation.error as Error).message}</div>}
+        {validationError && <div style={{ color: 'red' }}>{validationError}</div>}
+        {mutation.isError && <div style={{ color: 'red' }}>Error: {(mutation.error as Error).message}</div>}
       </form>
     </div>
   );

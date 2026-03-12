@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCustomer } from '../api/create-customer'; // To be created
 import type { Customer } from '../domain/Customer';
+import { validateSafeTextInput } from '../../shared/sql-input-validation';
+import { ROUTES } from '../../../config/routes';
 
 const initialCustomer: Partial<Customer> = {
   clientFirstName: '',
@@ -26,6 +28,15 @@ const CreateCustomerPage: React.FC = () => {
     if (!customer.clientFirstName) newErrors.clientFirstName = 'First name is required';
     if (!customer.clientLastName) newErrors.clientLastName = 'Last name is required';
     if (!customer.dateofBirth) newErrors.dateofBirth = 'Date of birth is required';
+
+    const firstNameError = validateSafeTextInput(customer.clientFirstName || '', 'First name');
+    const lastNameError = validateSafeTextInput(customer.clientLastName || '', 'Last name');
+    const preferredNameError = validateSafeTextInput(customer.prefferName || '', 'Preferred name');
+
+    if (firstNameError) newErrors.clientFirstName = firstNameError;
+    if (lastNameError) newErrors.clientLastName = lastNameError;
+    if (preferredNameError) newErrors.prefferName = preferredNameError;
+
     return newErrors;
   };
 
@@ -51,8 +62,8 @@ const CreateCustomerPage: React.FC = () => {
     };
     try {
       await createCustomer(newCustomer);
-      navigate('/customer');
-    } catch (err) {
+      navigate(ROUTES.CUSTOMER_LIST);
+    } catch {
       setErrors({ submit: 'Failed to create customer' });
     }
   };
@@ -74,6 +85,7 @@ const CreateCustomerPage: React.FC = () => {
         <div>
           <label>Preferred Name</label>
           <input name="prefferName" value={customer.prefferName || ''} onChange={handleChange} />
+          {errors.prefferName && <div style={{ color: 'red' }}>{errors.prefferName}</div>}
         </div>
         <div>
           <label>Date of Birth *</label>
