@@ -2,10 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchUserById } from './api/user-detail-by-id';
+import { ROUTES, routeBuilders } from '../../../config/routes';
+import { fetchUserById } from '../api/user-detail-by-id';
 import UserDetail from './user-detail';
 
-vi.mock('./api/user-detail-by-id', () => ({
+vi.mock('../api/user-detail-by-id', () => ({
   fetchUserById: vi.fn(),
 }));
 
@@ -17,14 +18,14 @@ const createTestClient = () =>
     },
   });
 
-const renderUserDetail = (path = '/users/7') => {
+const renderUserDetail = (path = routeBuilders.userDetail(7)) => {
   const queryClient = createTestClient();
 
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[path]}>
         <Routes>
-          <Route path="/users/:userId" element={<UserDetail />} />
+          <Route path={ROUTES.USER_DETAIL_PATTERN} element={<UserDetail />} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,

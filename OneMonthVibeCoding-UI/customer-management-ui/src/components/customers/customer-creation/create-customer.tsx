@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createCustomer } from '../api/create-customer'; // To be created
 import type { Customer } from '../domain/Customer';
 import { validateSafeTextInput } from '../../shared/sql-input-validation';
+import { ROUTES } from '../../../config/routes';
 
 const initialCustomer: Partial<Customer> = {
   clientFirstName: '',
@@ -61,7 +62,7 @@ const CreateCustomerPage: React.FC = () => {
     };
     try {
       await createCustomer(newCustomer);
-      navigate('/customer');
+      navigate(ROUTES.CUSTOMER_LIST);
     } catch {
       setErrors({ submit: 'Failed to create customer' });
     }

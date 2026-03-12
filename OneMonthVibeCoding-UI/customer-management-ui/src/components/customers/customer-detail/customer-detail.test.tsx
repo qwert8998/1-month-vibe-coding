@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES, routeBuilders } from '../../../config/routes';
 import { useCustomerDetail } from '../api';
 import CustomerDetail from './customer-detail';
 
@@ -8,12 +9,12 @@ vi.mock('../api', () => ({
   useCustomerDetail: vi.fn(),
 }));
 
-const renderCustomerDetail = (path = '/customer/7') =>
+const renderCustomerDetail = (path = routeBuilders.customerDetail(7)) =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route path="/customer/:id" element={<CustomerDetail />} />
-        <Route path="/customer" element={<CustomerDetail />} />
+        <Route path={ROUTES.CUSTOMER_DETAIL_PATTERN} element={<CustomerDetail />} />
+        <Route path={ROUTES.CUSTOMER_LIST} element={<CustomerDetail />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -73,7 +74,7 @@ describe('CustomerDetail', () => {
     expect(screen.getByRole('heading', { name: 'Customer Detail' })).toBeInTheDocument();
     expect(screen.getByText('Jane')).toBeInTheDocument();
     expect(screen.getByText('Doe')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Back to Customer List' })).toHaveAttribute('href', '/customer');
+    expect(screen.getByRole('link', { name: 'Back to Customer List' })).toHaveAttribute('href', ROUTES.CUSTOMER_LIST);
   });
 
   it('uses fallback id when route param is missing', () => {
@@ -84,7 +85,7 @@ describe('CustomerDetail', () => {
       error: null,
     } as ReturnType<typeof useCustomerDetail>);
 
-    renderCustomerDetail('/customer');
+    renderCustomerDetail(ROUTES.CUSTOMER_LIST);
 
     expect(useCustomerDetail).toHaveBeenCalledWith('1');
   });

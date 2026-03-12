@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES, routeBuilders } from '../../config/routes';
 import { deleteCustomer, useCustomers } from './api';
 import type { Customer } from './domain/Customer';
 import CustomersMain from './customers-main';
@@ -81,8 +82,8 @@ describe('CustomersMain', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Customer Details' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Jane' })).toHaveAttribute('href', '/customer/10');
-    expect(screen.getByRole('link', { name: 'Create User' })).toHaveAttribute('href', '/customer/create');
+    expect(screen.getByRole('link', { name: 'Jane' })).toHaveAttribute('href', routeBuilders.customerDetail(10));
+    expect(screen.getByRole('link', { name: 'Create User' })).toHaveAttribute('href', ROUTES.CUSTOMER_CREATE);
   });
 
   it('shows delete error when delete API returns false', async () => {

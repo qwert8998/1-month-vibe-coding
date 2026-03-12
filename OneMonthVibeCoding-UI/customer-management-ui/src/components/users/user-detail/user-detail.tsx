@@ -1,9 +1,9 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchUserById } from './api/user-detail-by-id';
-import type { User } from './domain/User';
-import { parseStrictPositiveInteger } from '../shared/sql-input-validation';
+import { useParams } from 'react-router-dom';
+import { fetchUserById } from '../api/user-detail-by-id';
+import type { User } from '../domain/User';
+import { parseStrictPositiveInteger } from '../../shared/sql-input-validation';
 
 const UserDetail: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();

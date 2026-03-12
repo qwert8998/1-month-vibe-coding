@@ -3,55 +3,70 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomers } from '../../customers/api/customer-list';
 import { createOrder } from '../api/create-order';
 import type { Customer } from '../../customers/domain/Customer';
+import {
+  createInitialOrderFormState,
+  INITIAL_CREATE_ORDER_REQUEST_STATE,
+  type CreateOrderFormState,
+  type CreateOrderRequestState,
+  type CreateOrderValidationErrors,
+} from './create-order.state';
 import { parseStrictPositiveInteger } from '../../shared/sql-input-validation';
-
-const getDefaultDeliveryDate = () => {
-  const d = new Date();
-  d.setDate(d.getDate() + 3);
-  return d.toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm for datetime-local
-};
+import { ROUTES } from '../../../config/routes';
 
 const CreateOrderPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: customers, isLoading: customersLoading } = useCustomers();
 
-  const [clientId, setClientId] = useState<string>('');
-  const [totalCost, setTotalCost] = useState<string>('');
-  const [deliveryDate, setDeliveryDate] = useState<string>(getDefaultDeliveryDate());
-  const [canceled, setCanceled] = useState<boolean>(false);
-  const [refund, setRefund] = useState<boolean>(false);
-  const [refundCost, setRefundCost] = useState<string>('0');
-  const [isDeleted, setIsDeleted] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [submitError, setSubmitError] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formState, setFormState] = useState<CreateOrderFormState>(createInitialOrderFormState);
+  const [requestState, setRequestState] = useState<CreateOrderRequestState>(INITIAL_CREATE_ORDER_REQUEST_STATE);
 
-  const validate = () => {
-    const newErrors: { [key: string]: string } = {};
-    if (!clientId) newErrors.clientId = 'Please select a client.';
-    if (clientId) {
+  const { clientId, totalCost, deliveryDate, canceled, refund, refundCost, isDeleted } = formState;
+  const { errors, submitError, isSubmitting } = requestState;
+
+  const updateFormState = <K extends keyof CreateOrderFormState>(field: K, value: CreateOrderFormState[K]) => {
+    setFormState(previousState => ({
+      ...previousState,
+      [field]: value,
+    }));
+  };
+
+  const updateRequestState = (updates: Partial<CreateOrderRequestState>) => {
+    setRequestState(previousState => ({
+      ...previousState,
+      ...updates,
+    }));
+  };
+
+  const validate = (state: CreateOrderFormState): CreateOrderValidationErrors => {
+    const newErrors: CreateOrderValidationErrors = {};
+
+    if (!state.clientId) newErrors.clientId = 'Please select a client.';
+    if (state.clientId) {
       try {
-        parseStrictPositiveInteger(clientId, 'Client ID');
+        parseStrictPositiveInteger(state.clientId, 'Client ID');
       } catch {
         newErrors.clientId = 'Invalid client id.';
       }
     }
-    const cost = Number(totalCost);
-    if (!totalCost || isNaN(cost) || cost <= 0) newErrors.totalCost = 'Total cost must be greater than 0.';
-    if (!deliveryDate) newErrors.deliveryDate = 'Delivery date is required.';
+
+    const cost = Number(state.totalCost);
+    if (!state.totalCost || isNaN(cost) || cost <= 0) newErrors.totalCost = 'Total cost must be greater than 0.';
+    if (!state.deliveryDate) newErrors.deliveryDate = 'Delivery date is required.';
+
     return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors = validate();
+
+    const newErrors = validate(formState);
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+      updateRequestState({ errors: newErrors });
       return;
     }
-    setErrors({});
-    setSubmitError('');
-    setIsSubmitting(true);
+
+    updateRequestState({ errors: {}, submitError: '', isSubmitting: true });
+
     try {
       const parsedClientId = parseStrictPositiveInteger(clientId, 'Client ID');
       await createOrder({
@@ -67,11 +82,11 @@ const CreateOrderPage: React.FC = () => {
         updateDate: null,
         isDeleted,
       });
-      navigate('/orders');
+      navigate(ROUTES.ORDER_LIST);
     } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : 'Failed to create order');
+      updateRequestState({ submitError: err instanceof Error ? err.message : 'Failed to create order' });
     } finally {
-      setIsSubmitting(false);
+      updateRequestState({ isSubmitting: false });
     }
   };
 
@@ -86,7 +101,7 @@ const CreateOrderPage: React.FC = () => {
           ) : (
             <select
               value={clientId}
-              onChange={e => setClientId(e.target.value)}
+              onChange={e => updateFormState('clientId', e.target.value)}
               style={{ display: 'block', width: '100%', padding: '8px', marginTop: 4 }}
             >
               <option value="">-- Select a client --</option>
@@ -106,7 +121,7 @@ const CreateOrderPage: React.FC = () => {
             type="number"
             min={1}
             value={totalCost}
-            onChange={e => setTotalCost(e.target.value)}
+            onChange={e => updateFormState('totalCost', e.target.value)}
             style={{ display: 'block', width: '100%', padding: '8px', marginTop: 4 }}
           />
           {errors.totalCost && <div style={{ color: 'red', fontSize: '0.875rem' }}>{errors.totalCost}</div>}
@@ -117,7 +132,7 @@ const CreateOrderPage: React.FC = () => {
           <input
             type="datetime-local"
             value={deliveryDate}
-            onChange={e => setDeliveryDate(e.target.value)}
+            onChange={e => updateFormState('deliveryDate', e.target.value)}
             style={{ display: 'block', width: '100%', padding: '8px', marginTop: 4 }}
           />
           {errors.deliveryDate && <div style={{ color: 'red', fontSize: '0.875rem' }}>{errors.deliveryDate}</div>}
@@ -125,14 +140,14 @@ const CreateOrderPage: React.FC = () => {
 
         <div style={{ marginBottom: 12 }}>
           <label>
-            <input type="checkbox" checked={canceled} onChange={e => setCanceled(e.target.checked)} />
+            <input type="checkbox" checked={canceled} onChange={e => updateFormState('canceled', e.target.checked)} />
             {' '}Canceled
           </label>
         </div>
 
         <div style={{ marginBottom: 12 }}>
           <label>
-            <input type="checkbox" checked={refund} onChange={e => setRefund(e.target.checked)} />
+            <input type="checkbox" checked={refund} onChange={e => updateFormState('refund', e.target.checked)} />
             {' '}Refund
           </label>
         </div>
@@ -143,14 +158,14 @@ const CreateOrderPage: React.FC = () => {
             type="number"
             min={0}
             value={refundCost}
-            onChange={e => setRefundCost(e.target.value)}
+            onChange={e => updateFormState('refundCost', e.target.value)}
             style={{ display: 'block', width: '100%', padding: '8px', marginTop: 4 }}
           />
         </div>
 
         <div style={{ marginBottom: 12 }}>
           <label>
-            <input type="checkbox" checked={isDeleted} onChange={e => setIsDeleted(e.target.checked)} />
+            <input type="checkbox" checked={isDeleted} onChange={e => updateFormState('isDeleted', e.target.checked)} />
             {' '}Is Deleted
           </label>
         </div>

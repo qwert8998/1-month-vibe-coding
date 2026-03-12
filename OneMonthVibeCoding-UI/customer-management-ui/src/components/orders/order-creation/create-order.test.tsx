@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES } from '../../../config/routes';
 import { useCustomers } from '../../customers/api/customer-list';
 import type { Customer } from '../../customers/domain/Customer';
 import { createOrder } from '../api/create-order';
@@ -143,7 +144,7 @@ describe('CreateOrderPage', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/orders');
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ORDER_LIST);
     });
   });
 

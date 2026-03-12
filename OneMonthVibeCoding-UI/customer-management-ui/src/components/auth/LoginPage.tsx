@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { login } from './api';
 import '../../App.css';
+import { ROUTES } from '../../config/routes';
 
 const AUTH_TOKEN_KEY = 'authToken';
 const AUTH_TOKEN_EXPIRES_AT_KEY = 'authTokenExpiresAt';
@@ -27,7 +28,7 @@ const LoginPage: React.FC = () => {
         const expiresAt = Date.now() + ONE_DAY_IN_MS;
         localStorage.setItem(AUTH_TOKEN_KEY, data.token);
         localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, String(expiresAt));
-        window.location.href = '/customer'; // Redirect to first feature
+        window.location.href = ROUTES.CUSTOMER_LIST;
       } else {
         throw new Error('Login failed');
       }

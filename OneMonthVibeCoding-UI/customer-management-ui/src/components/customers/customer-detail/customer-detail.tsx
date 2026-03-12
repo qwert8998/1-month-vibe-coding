@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCustomerDetail } from '../api';
+import { ROUTES } from '../../../config/routes';
 
 const CustomerDetail: React.FC = () => {
   // For now, always use id=1 as per requirements
@@ -29,7 +30,7 @@ const CustomerDetail: React.FC = () => {
         </table>
       )}
       <div style={{ marginTop: '16px' }}>
-        <Link to="/customer">Back to Customer List</Link>
+        <Link to={ROUTES.CUSTOMER_LIST}>Back to Customer List</Link>
       </div>
     </div>
   );

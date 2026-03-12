@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createUser } from './api/create-user';
-import type { User } from './domain/User';
 import { useNavigate } from 'react-router-dom';
-import { validateSafeTextInput } from '../shared/sql-input-validation';
+import { createUser } from '../api/create-user';
+import type { User } from '../domain/User';
+import { validateSafeTextInput } from '../../shared/sql-input-validation';
+import { ROUTES } from '../../../config/routes';
 
 const CreateUser: React.FC = () => {
   const queryClient = useQueryClient();
@@ -20,7 +21,7 @@ const CreateUser: React.FC = () => {
     mutationFn: createUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      navigate('/users');
+      navigate(ROUTES.USER_LIST);
     },
   });
 
@@ -81,8 +82,8 @@ const CreateUser: React.FC = () => {
           <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
         </div>
         <button type="submit" disabled={mutation.isPending}>Create</button>
-        {validationError && <div style={{color:'red'}}>{validationError}</div>}
-        {mutation.isError && <div style={{color:'red'}}>Error: {(mutation.error as Error).message}</div>}
+        {validationError && <div style={{ color: 'red' }}>{validationError}</div>}
+        {mutation.isError && <div style={{ color: 'red' }}>Error: {(mutation.error as Error).message}</div>}
       </form>
     </div>
   );

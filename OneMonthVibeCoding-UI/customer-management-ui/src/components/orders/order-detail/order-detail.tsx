@@ -3,18 +3,20 @@ import { Link, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOrderDetailById } from '../api/order-detail-by-id';
 import { refundOrder } from '../api/refund-order';
+import {
+  buildOrderDetailTableRows,
+  INITIAL_REFUND_MODAL_STATE,
+  type RefundModalState,
+} from './order-detail.state';
 import { parseStrictPositiveInteger } from '../../shared/sql-input-validation';
+import { ROUTES } from '../../../config/routes';
 
 const OrderDetail: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const queryClient = useQueryClient();
   const { data: order, isLoading, isError, error } = useOrderDetailById(orderId || '');
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [refundCost, setRefundCost] = useState<string>('');
-  const [inputError, setInputError] = useState<string>('');
-  const [submitError, setSubmitError] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refundModalState, setRefundModalState] = useState<RefundModalState>(INITIAL_REFUND_MODAL_STATE);
   const parsedOrderId = (() => {
     try {
       return parseStrictPositiveInteger(orderId ?? '', 'Order ID');
@@ -23,41 +25,48 @@ const OrderDetail: React.FC = () => {
     }
   })();
 
+  const { modalOpen, refundCost, inputError, submitError, isSubmitting } = refundModalState;
+
+  const updateRefundModalState = (updates: Partial<RefundModalState>) => {
+    setRefundModalState(previousState => ({
+      ...previousState,
+      ...updates,
+    }));
+  };
+
   const handleOpenModal = () => {
-    setRefundCost('');
-    setInputError('');
-    setSubmitError('');
-    setModalOpen(true);
+    setRefundModalState({
+      ...INITIAL_REFUND_MODAL_STATE,
+      modalOpen: true,
+    });
   };
 
   const handleCloseModal = () => {
-    setModalOpen(false);
+    setRefundModalState(INITIAL_REFUND_MODAL_STATE);
   };
 
   const handleSubmitRefund = async () => {
     if (!parsedOrderId) {
-      setInputError('Invalid order id.');
+      updateRefundModalState({ inputError: 'Invalid order id.' });
       return;
     }
 
     const cost = Number(refundCost);
     if (!refundCost || isNaN(cost) || cost <= 0) {
-      setInputError('Please enter a number greater than 0.');
+      updateRefundModalState({ inputError: 'Please enter a number greater than 0.' });
       return;
     }
 
-    setInputError('');
-    setSubmitError('');
-    setIsSubmitting(true);
+    updateRefundModalState({ inputError: '', submitError: '', isSubmitting: true });
 
     try {
       await refundOrder(parsedOrderId, { refundCost: cost, updateBy: 'system' });
-      setModalOpen(false);
+      setRefundModalState(INITIAL_REFUND_MODAL_STATE);
       queryClient.invalidateQueries({ queryKey: ['order', orderId] });
     } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : 'Failed to submit refund');
+      updateRefundModalState({ submitError: err instanceof Error ? err.message : 'Failed to submit refund' });
     } finally {
-      setIsSubmitting(false);
+      updateRefundModalState({ isSubmitting: false });
     }
   };
 
@@ -65,26 +74,22 @@ const OrderDetail: React.FC = () => {
   if (isError) return <div>Error: {error?.message}</div>;
   if (!order) return <div>No order found.</div>;
 
+  const tableRows = buildOrderDetailTableRows(order);
+
   return (
     <div>
       <div style={{ marginBottom: '16px' }}>
-        <Link to="/orders">Go back</Link>
+        <Link to={ROUTES.ORDER_LIST}>Go back</Link>
       </div>
       <h2>Order Detail</h2>
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px' }}>
         <tbody>
-          <tr><td><b>OrderId</b></td><td>{order.orderId}</td></tr>
-          <tr><td><b>Client Name</b></td><td>{order.client?.clientFirstName}</td></tr>
-          <tr><td><b>Total Cost</b></td><td>{order.totalCost}</td></tr>
-          <tr><td><b>Create By</b></td><td>{order.createBy}</td></tr>
-          <tr><td><b>Create Date</b></td><td>{order.createDate}</td></tr>
-          <tr><td><b>Delivery Date</b></td><td>{order.deliveryDate}</td></tr>
-          <tr><td><b>Canceled</b></td><td>{order.canceled ? 'Yes' : 'No'}</td></tr>
-          <tr><td><b>Refund</b></td><td>{order.refund ? 'Yes' : 'No'}</td></tr>
-          <tr><td><b>Refund Cost</b></td><td>{order.refundCost}</td></tr>
-          <tr><td><b>Update By</b></td><td>{order.updateBy}</td></tr>
-          <tr><td><b>Update Date</b></td><td>{order.updateDate}</td></tr>
-          <tr><td><b>Is Deleted</b></td><td>{order.isDeleted ? 'Yes' : 'No'}</td></tr>
+          {tableRows.map(row => (
+            <tr key={row.label}>
+              <td><b>{row.label}</b></td>
+              <td>{row.value}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
@@ -108,7 +113,7 @@ const OrderDetail: React.FC = () => {
                 type="number"
                 min={1}
                 value={refundCost}
-                onChange={e => setRefundCost(e.target.value)}
+                onChange={e => updateRefundModalState({ refundCost: e.target.value })}
                 placeholder="Enter amount (> 0)"
                 style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: 4 }}
               />

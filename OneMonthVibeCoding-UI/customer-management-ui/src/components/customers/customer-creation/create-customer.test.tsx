@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES } from '../../../config/routes';
 import { createCustomer } from '../api/create-customer';
 import CreateCustomerPage from './create-customer';
 
@@ -84,7 +85,7 @@ describe('CreateCustomerPage', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/customer');
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.CUSTOMER_LIST);
     });
   });
 

@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAllUsers } from './api/user-list';
 import type { User } from './domain/User';
+import { routeBuilders, ROUTES } from '../../config/routes';
 
 const UsersMain: React.FC = () => {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ const UsersMain: React.FC = () => {
           {users.map((user: User) => (
             <tr key={user.userId}>
               <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                <Link to={`/users/${user.userId}`}>{user.userId}</Link>
+                <Link to={routeBuilders.userDetail(user.userId)}>{user.userId}</Link>
               </td>
               <td style={{ border: '1px solid #ccc', padding: '8px' }}>{user.userName}</td>
               <td style={{ border: '1px solid #ccc', padding: '8px' }}>
@@ -94,7 +95,7 @@ const UsersMain: React.FC = () => {
         </tbody>
       </table>
       <div style={{ marginTop: '24px', textAlign: 'right' }}>
-        <button onClick={() => navigate('/users/create')}>Create User</button>
+        <button onClick={() => navigate(ROUTES.USER_CREATE)}>Create User</button>
       </div>
     </div>
   );

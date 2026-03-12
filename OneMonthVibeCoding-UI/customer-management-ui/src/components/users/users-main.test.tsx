@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES, routeBuilders } from '../../config/routes';
 import { fetchAllUsers } from './api/user-list';
 import UsersMain from './users-main';
 
@@ -70,12 +71,12 @@ describe('UsersMain', () => {
     renderUsersMain();
 
     expect(await screen.findByRole('heading', { name: 'Users' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '1' })).toHaveAttribute('href', '/users/1');
+    expect(screen.getByRole('link', { name: '1' })).toHaveAttribute('href', routeBuilders.userDetail(1));
     expect(screen.getByText('alice')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Create User' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/users/create');
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.USER_CREATE);
   });
 
   it('shows error state when fetching users fails', async () => {

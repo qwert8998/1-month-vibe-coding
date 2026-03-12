@@ -1,10 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { ROUTES } from '../../config/routes';
 
 const menuItems = [
-  { label: 'Customers', path: '/customer' },
-  { label: 'Users', path: '/users' },
-  { label: 'Orders', path: '/orders' },
+  { label: 'Customers', path: ROUTES.CUSTOMER_LIST },
+  { label: 'Users', path: ROUTES.USER_LIST },
+  { label: 'Orders', path: ROUTES.ORDER_LIST },
 ];
 
 const Menu: React.FC = () => {

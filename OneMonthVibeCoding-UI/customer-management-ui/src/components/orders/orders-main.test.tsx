@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES, routeBuilders } from '../../config/routes';
 import { useOrderList } from './api/order-list';
 import type { Order } from './domain/Order';
 import OrdersMain from './orders-main';
@@ -118,10 +119,10 @@ describe('OrdersMain', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Orders' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '11' })).toHaveAttribute('href', '/orders/11');
+    expect(screen.getByRole('link', { name: '11' })).toHaveAttribute('href', routeBuilders.orderDetail(11));
     expect(screen.getByText('John Doe')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Create Order' }));
-    expect(mockNavigate).toHaveBeenCalledWith('/orders/create');
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ORDER_CREATE);
   });
 });

@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES, routeBuilders } from '../../../config/routes';
 import { useOrderDetailById } from '../api/order-detail-by-id';
 import { refundOrder } from '../api/refund-order';
 import OrderDetail from './order-detail';
@@ -15,7 +16,7 @@ vi.mock('../api/refund-order', () => ({
   refundOrder: vi.fn(),
 }));
 
-const renderOrderDetail = (path = '/orders/7') => {
+const renderOrderDetail = (path = routeBuilders.orderDetail(7)) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -28,7 +29,7 @@ const renderOrderDetail = (path = '/orders/7') => {
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[path]}>
         <Routes>
-          <Route path="/orders/:orderId" element={<OrderDetail />} />
+          <Route path={ROUTES.ORDER_DETAIL_PATTERN} element={<OrderDetail />} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -116,7 +117,7 @@ describe('OrderDetail', () => {
 
     vi.mocked(refundOrder).mockResolvedValue(undefined);
 
-    const { invalidateSpy } = renderOrderDetail('/orders/7');
+    const { invalidateSpy } = renderOrderDetail(routeBuilders.orderDetail(7));
 
     expect(screen.getByRole('heading', { name: 'Order Detail' })).toBeInTheDocument();
 
@@ -155,7 +156,7 @@ describe('OrderDetail', () => {
       error: null,
     } as ReturnType<typeof useOrderDetailById>);
 
-    renderOrderDetail('/orders/7');
+    renderOrderDetail(routeBuilders.orderDetail(7));
 
     await userEvent.click(screen.getByRole('button', { name: 'Refund' }));
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
@@ -187,7 +188,7 @@ describe('OrderDetail', () => {
 
     vi.mocked(refundOrder).mockRejectedValue(new Error('refund failed'));
 
-    renderOrderDetail('/orders/7');
+    renderOrderDetail(routeBuilders.orderDetail(7));
 
     await userEvent.click(screen.getByRole('button', { name: 'Refund' }));
     await userEvent.type(screen.getByLabelText('Refund Amount'), '10');

@@ -11,9 +11,10 @@ import CustomerDetail from './components/customers/customer-detail';
 import OrdersMain from './components/orders/orders-main';
 import OrderDetail from './components/orders/order-detail/order-detail';
 import CreateOrderPage from './components/orders/order-creation/create-order';
-import UserDetail from './components/users/user-detail';
-import CreateUser from './components/users/create-user';
+import UserDetail from './components/users/user-detail/user-detail';
+import CreateUser from './components/users/user-creation/create-user';
 import { logout } from './components/auth/api';
+import { ROUTES } from './config/routes';
 
 type GuardProps = {
   isLoggedIn: boolean;
@@ -21,11 +22,11 @@ type GuardProps = {
 };
 
 function RequireAuth({ isLoggedIn, children }: GuardProps) {
-  return isLoggedIn ? children : <Navigate to="/login" replace />;
+  return isLoggedIn ? children : <Navigate to={ROUTES.LOGIN} replace />;
 }
 
 function PublicOnly({ isLoggedIn, children }: GuardProps) {
-  return isLoggedIn ? <Navigate to="/customer" replace /> : children;
+  return isLoggedIn ? <Navigate to={ROUTES.CUSTOMER_LIST} replace /> : children;
 }
 
 function App() {
@@ -33,7 +34,7 @@ function App() {
   const handleLogout = async () => {
     await logout(localStorage.getItem('authToken') || '');
     localStorage.removeItem('authToken');
-    window.location.href = '/login';
+    window.location.href = ROUTES.LOGIN;
   };
   return (
     <div style={{ display: 'flex', height: '100vh', background: '#f7f7f7', position: 'relative' }}>
@@ -67,60 +68,60 @@ function App() {
       >
         <Routes>
           <Route
-            path="/login"
+            path={ROUTES.LOGIN}
             element={
               <PublicOnly isLoggedIn={isLoggedIn}>
                 <LoginPage />
               </PublicOnly>
             }
           />
-          <Route path="/customer" element={
+          <Route path={ROUTES.CUSTOMER_LIST} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <CustomersMain />
             </RequireAuth>
           } />
-          <Route path="/customer/create" element={
+          <Route path={ROUTES.CUSTOMER_CREATE} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <CreateCustomerPage />
             </RequireAuth>
           } />
-          <Route path="/customer/:id" element={
+          <Route path={ROUTES.CUSTOMER_DETAIL_PATTERN} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <CustomerDetail />
             </RequireAuth>
           } />
-          <Route path="/users" element={
+          <Route path={ROUTES.USER_LIST} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <UsersMain />
             </RequireAuth>
           } />
-          <Route path="/users/:userId" element={
+          <Route path={ROUTES.USER_DETAIL_PATTERN} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <UserDetail />
             </RequireAuth>
           } />
-          <Route path="/users/create" element={
+          <Route path={ROUTES.USER_CREATE} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <CreateUser />
             </RequireAuth>
           } />
-          <Route path="/orders" element={
+          <Route path={ROUTES.ORDER_LIST} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <OrdersMain />
             </RequireAuth>
           } />
-          <Route path="/orders/create" element={
+          <Route path={ROUTES.ORDER_CREATE} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <CreateOrderPage />
             </RequireAuth>
           } />
-          <Route path="/orders/:orderId" element={
+          <Route path={ROUTES.ORDER_DETAIL_PATTERN} element={
             <RequireAuth isLoggedIn={isLoggedIn}>
               <OrderDetail />
             </RequireAuth>
           } />
-          <Route path="/" element={<Navigate to={isLoggedIn ? '/customer' : '/login'} replace />} />
-          <Route path="*" element={<Navigate to={isLoggedIn ? '/customer' : '/login'} replace />} />
+          <Route path="/" element={<Navigate to={isLoggedIn ? ROUTES.CUSTOMER_LIST : ROUTES.LOGIN} replace />} />
+          <Route path="*" element={<Navigate to={isLoggedIn ? ROUTES.CUSTOMER_LIST : ROUTES.LOGIN} replace />} />
         </Routes>
       </div>
     </div>
